@@ -1,4 +1,5 @@
 import random
+import dbManager
 
 game_tools = ['schere', 'stein', 'papier', 'echse', 'spock']
 input_check = False
@@ -36,11 +37,15 @@ def checks_winner(user_input, computer_input):
         print('Verloren')
 
 
-while input_check is False:
-    print('Bitte Wählen Sie zwischen Schere, Stein, Papier, Echse, Spock')
-    player_input = input('Deine wahl: ').lower()
-    input_check = checks_input(player_input)
-    random.shuffle(game_tools)
+if __name__ == "__main__":
+    dbManager.create_databse()
+    dbManager.create_table()
+    while input_check is False:
+        print('Bitte Wählen Sie zwischen Schere, Stein, Papier, Echse, Spock')
+        player_input = input('Deine wahl: ').lower()
+        input_check = checks_input(player_input)
+        random.shuffle(game_tools)
 
-print('Computerwahl = '+game_tools[0])
-checks_winner(player_input, game_tools[0])
+    print('Computerwahl = ' + game_tools[0])
+    checks_winner(player_input, game_tools[0])
+
