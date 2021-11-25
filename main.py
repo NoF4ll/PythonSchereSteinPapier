@@ -26,15 +26,20 @@ def checks_input(user_input):
 def checks_winner(user_input, computer_input):
     difference = (tool_to_number(user_input) - tool_to_number(computer_input)) % 5
     if difference == 0:
-        print('Unentschieden')
+        dbManager.insert_stats("Unentschieden", player_input)
+        return print('Unentschieden')
     if difference == 1:
-        print('Gewonnen')
+        dbManager.insert_stats("Gewonnen", player_input)
+        return print('Gewonnen')
     if difference == 2:
-        print('Gewonnen')
+        dbManager.insert_stats("Gewonnen", player_input)
+        return print('Gewonnen')
     if difference == 3:
-        print('Verloren')
+        dbManager.insert_stats("Verloren", player_input)
+        return print('Verloren')
     if difference == 4:
-        print('Verloren')
+        dbManager.insert_stats("Verloren", player_input)
+        return print('Verloren')
 
 
 if __name__ == "__main__":
@@ -49,3 +54,5 @@ if __name__ == "__main__":
     print('Computerwahl = ' + game_tools[0])
     checks_winner(player_input, game_tools[0])
 
+    dbManager.get_game_stats()
+    dbManager.count_player_moves()
