@@ -1,6 +1,7 @@
 import mysql.connector
+import apiHandler
 
-mydb = mysql.connector.connect(host="localhost", user="root", password="bichl601", database="scheresteinpapierstats")
+mydb = mysql.connector.connect(host="localhost", user="root", password="hurensohn", database="scheresteinpapierstats")
 cursor = mydb.cursor()
 
 
@@ -10,21 +11,22 @@ def create_databse():
 
 def create_table():
     #cursor.execute("use scheresteinpapierstats")
-    sql = "create table if not exists stats (GameResult varchar(255), Move varchar(255))"
+    sql = "create table if not exists game_stats (game_result int not null, move int not null)"
     cursor.execute(sql)
 
 
 def insert_stats(game_result, move):
     #cursor.execute("use scheresteinpapierstats")
-    sql = "insert into stats (GameResult, Move) values(%s, %s)"
+    sql = "insert into game_stats (Game_Result, Move) values(%s, %s)"
     val = (game_result, move)
     cursor.execute(sql, val)
     mydb.commit()
 
 
 def get_game_stats():
-    sql_wins = "Select count('GameResult') from stats where gameResult = 'gewonnen';"
-    sql_losses = "Select count('GameResult') from stats where gameResult = 'verloren';"
+    sql_wins = "Select count('Game_Result') from game_stats where game_Result = 1;"
+    sql_losses = "Select count('Game_Result') from game_stats where game_Result = 0;"
+    sql_draws = "Select count('Game_Result') from game_stats where game_Result = 2"
 
     cursor.execute(sql_wins)
     wins = cursor.fetchall()
@@ -32,16 +34,21 @@ def get_game_stats():
     cursor.execute(sql_losses)
     losses = cursor.fetchall()
 
-    print("Gewonnen: "+str(wins[0][0])+" Verloren: "+str(losses[0][0]))
+    cursor.execute(sql_draws)
+    draws = cursor.fetchall()
+
+    gamesplayed = wins[0][0] + losses[0][0] + draws[0][0]
+    print("Spiele gespielt: "+str(gamesplayed))
+    print("Gewonnen: "+str(wins[0][0])+" Verloren: "+str(losses[0][0])+" Unentschieden: "+str(draws[0][0]))
 
 
 def count_player_moves():
-    count_scissor = "Select count('move') from stats where move = 'Schere';"
-    count_rock = "Select count('move') from stats where move = 'Stein';"
-    count_paper = "Select count('move') from stats where move = 'Papier';"
-    count_lizard = "Select count('move') from stats where move = 'Echse';"
-    count_spock = "Select count('move') from stats where move = 'Spock';"
-    count_games_played = "Select count('move') from stats;"
+    count_scissor = "Select count('move') from game_stats where move = 4;"
+    count_rock = "Select count('move') from game_stats where move = 0;"
+    count_paper = "Select count('move') from game_stats where move = 2;"
+    count_lizard = "Select count('move') from game_stats where move = 3;"
+    count_spock = "Select count('move') from game_stats where move = 1;"
+    count_games_played = "Select count('move') from game_stats;"
 
     cursor.execute(count_scissor)
     number_scissor = cursor.fetchall()
@@ -60,6 +67,10 @@ def count_player_moves():
 
     cursor.execute(count_games_played)
     games_played = cursor.fetchall()
+
+    apiHandler.send_request("NoF4ll", number_scissor, number_rock, number_paper, number_spock, number_lizard)
+
+
 
     print("Anzahl der gewählten Spielfiguren:")
     print("Schere: "+str(number_scissor[0][0])+" Prozentanteil: "+str(round((number_scissor[0][0]/games_played[0][0])*100))+"%" +
